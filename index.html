@@ -1267,10 +1267,85 @@ function useFire(key,def){
   return [val,setter,loaded];
 }
 
+function SplashAnnouncement({onDone}){
+  const [progress,setProgress]=useState(0);
+  const DURATION=5000;
+  useEffect(()=>{
+    const start=Date.now();
+    const frame=()=>{
+      const p=Math.min(100,((Date.now()-start)/DURATION)*100);
+      setProgress(p);
+      if(p<100) requestAnimationFrame(frame);
+      else onDone();
+    };
+    requestAnimationFrame(frame);
+  },[]);
+  return (
+    <div style={{position:'fixed',inset:0,zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',
+      background:'linear-gradient(135deg,#0d1b3e 0%,#1d4ed8 60%,#06b6d4 100%)'}}>
+      {/* نجوم خلفية */}
+      {[...Array(18)].map((_,i)=>(
+        <div key={i} style={{position:'absolute',width:i%3===0?3:2,height:i%3===0?3:2,borderRadius:'50%',
+          background:'rgba(255,255,255,0.6)',
+          top:`${Math.sin(i*137)*45+50}%`,left:`${Math.cos(i*97)*45+50}%`,
+          animation:`pulse-ring ${1.5+i%3*0.5}s ease-in-out infinite`}}/>
+      ))}
+      <div style={{textAlign:'center',padding:'40px 32px',maxWidth:420,width:'90%',
+        background:'rgba(255,255,255,0.08)',backdropFilter:'blur(20px)',
+        borderRadius:32,border:'1px solid rgba(255,255,255,0.15)',
+        boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}}>
+        {/* أيقونة */}
+        <div style={{fontSize:64,marginBottom:16,animation:'fadeUp .6s ease'}}>🌟</div>
+        {/* العنوان */}
+        <div style={{fontFamily:'Tajawal,sans-serif',color:'#fff',fontSize:22,fontWeight:800,
+          marginBottom:8,lineHeight:1.4,direction:'rtl'}}>
+          شكراً جزيلاً
+        </div>
+        {/* اسم الطالب */}
+        <div style={{fontFamily:'Tajawal,sans-serif',
+          background:'linear-gradient(135deg,#fbbf24,#f97316)',
+          WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',
+          fontSize:28,fontWeight:900,marginBottom:16}}>
+          ايفان 🎓
+        </div>
+        {/* الرسالة */}
+        <div style={{fontFamily:'Tajawal,sans-serif',color:'rgba(255,255,255,0.85)',
+          fontSize:15,fontWeight:500,lineHeight:1.8,direction:'rtl',
+          background:'rgba(255,255,255,0.08)',borderRadius:16,padding:'14px 18px',marginBottom:24}}>
+          تقديراً لجهوده الرائعة في إعداد الملخصات الدراسية وتقديم يد العون لزملائه الطلاب 📚
+        </div>
+        {/* شريط التقدم */}
+        <div style={{background:'rgba(255,255,255,0.15)',borderRadius:99,height:6,overflow:'hidden'}}>
+          <div style={{height:'100%',borderRadius:99,transition:'width 0.1s linear',
+            background:'linear-gradient(90deg,#fbbf24,#f97316)',width:`${progress}%`}}/>
+        </div>
+        <div style={{fontFamily:'Tajawal,sans-serif',color:'rgba(255,255,255,0.5)',fontSize:12,marginTop:8}}>
+          يتم الانتقال للموقع...
+        </div>
+        {/* زر تخطي */}
+        <button onClick={onDone} style={{marginTop:14,background:'transparent',border:'1px solid rgba(255,255,255,0.3)',
+          color:'rgba(255,255,255,0.6)',fontFamily:'Tajawal,sans-serif',fontSize:12,
+          padding:'6px 20px',borderRadius:99,cursor:'pointer'}}>
+          تخطي ←
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function App(){
   const [isAdmin,setIsAdmin]=useState(!!sessionStorage.getItem(SK));
   const [showLogin,setShowLogin]=useState(false);
   const [page,setPage]=useState('home');
+  // Splash: show only within 4 days of first visit
+  const [showSplash,setShowSplash]=useState(()=>{
+    const SPLASH_KEY='cis_splash_ivan';
+    const DAYS=4;
+    const stored=localStorage.getItem(SPLASH_KEY);
+    if(!stored){ localStorage.setItem(SPLASH_KEY,Date.now().toString()); return true; }
+    const diff=(Date.now()-parseInt(stored))/(1000*60*60*24);
+    return diff<DAYS;
+  });
   const [students,setStudents,s1]=useFire('students',S0);
   const [grades,setGrades,s2]=useFire('grades',G0);
   const [tasks,setTasks,s3]=useFire('tasks',T0);
@@ -1281,6 +1356,8 @@ function App(){
   const courseOk=students.some(s=>s.completed);
   const ctx={students,setStudents,grades,setGrades,tasks,setTasks,groups,setGroups,isAdmin};
   const PAGES={home:<Home/>,students:<Students/>,grades:<Grades/>,tasks:<Tasks/>,groups:<Groups/>,jobs:<JobsPage/>};
+
+  if(showSplash) return <SplashAnnouncement onDone={()=>setShowSplash(false)}/>;
 
   if(!allLoaded) return (
     <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#0d1b3e,#1d4ed8)'}}>
