@@ -478,8 +478,8 @@ function Home(){
           <div className="flex gap-6 mt-6 flex-wrap">
             {[{l:'إجمالي الطلاب',v:ss.length,i:'👥'},{l:'مكتملو الدورة',v:ss.filter(s=>s.completed).length,i:'🎓'},{l:'المهام',v:4,i:'📋'}].map((c,i)=>(
               <div key={i} className="glass rounded-2xl px-5 py-3 text-center">
-                <div className="text-2xl font-900 text-white">{c.i} {c.v}</div>
-                <div className="text-blue-200 text-xs font-500 mt-0.5">{c.l}</div>
+                <div className="text-2xl font-900" style={{color:'#000'}}>{c.i} {c.v}</div>
+                <div className="text-xs font-500 mt-0.5" style={{color:'#000'}}>{c.l}</div>
               </div>
             ))}
           </div>
