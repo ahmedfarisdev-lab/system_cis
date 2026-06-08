@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "-p", "5500", "."],
       "port": 5500
+    },
+    {
+      "name": "image-template-tool",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "5501", "/Users/ahmedfaris/Desktop/ajrarah_system/image-template-tool"],
+      "port": 5501
     }
   ]
 }

@@ -5,7 +5,12 @@
       "Bash(npm init *)",
       "Bash(npm install *)",
       "Bash(npm cache *)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(mkdir -p /Users/ahmedfaris/Desktop/ajrarah_system/.claude)",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "Bash(open \"http://localhost:5501\")",
+      "Bash(find /Users/ahmedfaris/Desktop/system_cis -name \"*taskone*\" -o -name \"*task_one*\" -o -name \"*task one*\" 2>/dev/null; ls /Users/ahmedfaris/Desktop/ | grep -i task)",
+      "Bash(base64 -i \"/Users/ahmedfaris/Desktop/system_cis/task one.jpg\" | tr -d '\\\\n' > /tmp/task_one_b64.txt && echo \"done\")"
     ]
   }
 }
