@@ -6,7 +6,7 @@
   <title>CIS College – دبلوم التصميم الجرافيكي</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1333,24 +1333,28 @@ function JobsPage(){
    APP
 ══════════════════════════════════════ */
 /* ── Firestore helpers ── */
-function fsSet(key,val){ db.collection('cis').doc(key).set({data:val}).catch(e=>console.error('fsSet',e)); }
+const dbOk = typeof firebase!=='undefined' && typeof db!=='undefined';
+function fsSet(key,val){ if(!dbOk)return; db.collection('cis').doc(key).set({data:val}).catch(e=>console.error('fsSet',e)); }
 
 function useFire(key,def){
   const [val,setVal]=useState(def);
-  const [loaded,setLoaded]=useState(false);
+  const [loaded,setLoaded]=useState(!dbOk);
   useEffect(()=>{
+    if(!dbOk){ setLoaded(true); return; }
     let active=true;
     // Initial load
     db.collection('cis').doc(key).get()
       .then(snap=>{ if(active){ setVal(snap.exists?snap.data().data:def); setLoaded(true); } })
       .catch(()=>{ if(active) setLoaded(true); });
+    // Fallback: force loaded after 8s if Firebase is slow/blocked
+    const fallback=setTimeout(()=>{ if(active) setLoaded(true); },8000);
     // Poll every 5 seconds for real-time sync
     const timer=setInterval(()=>{
       db.collection('cis').doc(key).get()
         .then(snap=>{ if(active&&snap.exists) setVal(snap.data().data); })
         .catch(()=>{});
     },5000);
-    return ()=>{ active=false; clearInterval(timer); };
+    return ()=>{ active=false; clearInterval(timer); clearTimeout(fallback); };
   },[key]);
   const setter=useCallback(v=>{
     setVal(prev=>{
